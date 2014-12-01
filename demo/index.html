@@ -15,58 +15,48 @@
 
 		console.log("run.");
 		var fsm = jxlStateMachine;
-		// fsm.addState("fire1");
-		// fsm.addState("fire2");
-		// fsm.addState("fire3");
-		// $rootScope.$on("jxlStateMachine:change", function(event)
-		// {
-		// 	console.log("event:", event);
-		// });
-		// fsm.initialState = "fire1";
-		// fsm.changeState('fire3').then(function()
-		// {
-		// 	console.log("done with fire3 change");
-		// },
-		// function(error)
-		// {
-		// 	console.log("error:", error);
-		// });
+		fsm.addState("fire1");
+		fsm.addState("fire2");
+		fsm.addState("fire3");
+		$rootScope.$on("stateMachine:change", function(event, stateEvent)
+		{
+			console.log("event:", stateEvent);
+		});
+		fsm.initialState = "fire1";
+		fsm.changeState('fire3').then(function()
+		{
+			console.log("done with fire3 change");
+		},
+		function(error)
+		{
+			console.log("error:", error);
+		});
 		
-		// $timeout(function()
-		// {
-		// 	fsm.changeState("fire2");
-		// }, 1000);
+		$timeout(function()
+		{
+			console.log("Go fire2...");
+			fsm.changeState("fire2")
+			.then(function()
+			{
+				console.log("fire2 worked");
+			}, function(error)
+			{
+				console.error('fire2 failed:', error);
+			});
+		}, 1000);
 
-		// $timeout(function()
-		// {
-		// 	fsm.changeState("fire3");
-		// }, 2000);
+		$timeout(function()
+		{
+			fsm.changeState("fire3");
+		}, 2000);
 
-		// $timeout(function()
-		// {
-		// 	fsm.changeState("fire1");
-		// }, 3000);
-		// 
+		$timeout(function()
+		{
+			fsm.changeState("fire1");
+		}, 3000);
+		
 		
 
-		fsm.addState('fire1');
-        fsm.addState('fire2', {from: ["*"]});
-        fsm.initialState = 'fire1';
-        fsm.changeState('fire2')
-        .then(function()
-        {
-            assert.equal(fsm.currentState.name, 'fire2');
-            done();
-        },
-        function(error)
-        {
-            console.error("man, error:", error);
-            done(error);
-        },
-        function(notify)
-        {
-            console.log("notify:", notify);
-        });
 	});
 	
 </script>

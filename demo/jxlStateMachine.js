@@ -52,12 +52,12 @@
         		return _from;
         	},
 
-        	get enterCallback()
+        	get enter()
         	{
         		return _enterCallback;
         	},
 
-        	get exitCallback()
+        	get exit()
         	{
         		return _exitCallback;
         	},
@@ -149,7 +149,7 @@
         .service('jxlStateMachine', jxlStateMachine);
 
     /* ngInject */
-    function jxlStateMachine(jxlState, $q)
+    function jxlStateMachine(jxlState, $q, $rootScope)
     {
         var _currentState;
         var _currentParentState;
@@ -196,6 +196,7 @@
                 // local outEvent = {name = "onTransitionComplete", target = self, toState = stateName}
                 
                 // _streamController.add(new StateMachineEvent(StateMachineEvent.STATE_CHANGE));
+                $rootScope.$broadcast('stateMachine:change', {to: startStateName, from: null});
             },
 
             set currentState(state)
@@ -220,7 +221,7 @@
                 }
                 var newState = jxlState.getState(stateName,
                                             {from: config.from,
-                                            enter: config.ener,
+                                            enter: config.enter,
                                             exit: config.exit,
                                             parent: parentState});
                 this.states[stateName] = newState;
@@ -229,12 +230,7 @@
             
             canChangeStateTo: function(stateName)
             {
-                console.log("jxlStateMachine::canChangeStateTo, stateName: " + stateName);
-                console.log("_currentState.name:", _currentState.name);
-
                 var targetToState = this.states[stateName];
-                console.log("targetToState:", targetToState);
-                console.log("targetToState.from:", targetToState.from);
                 var score = 0;
                 var win = 2;
 
@@ -242,13 +238,11 @@
                 if(stateName != _currentState.name)
                 {
                     score++;
-                    console.log("state names aren't the same");
                 }
                 
                 // NOTE: Lua via State.inFrom was walking up one parent if from was null... why?
                 if(targetToState.from != null)
                 {
-                    console.log("it's from isn't null, so...");
                     // TODO: remove lodash, someone will get all bent out of shape
                     // that I'm adding precious k to their code. #inb4lessqueque
                     
@@ -258,13 +252,11 @@
                     if(tempValue > -1)
                     {
                         score++;
-                        console.log("currentState is in from list")
                     }
                     
                     if(targetToState.from.indexOf("*") > -1)
                     {
                         score++;
-                        console.log("targetToState's from has '*' in it");
                     }
                 }
                 
@@ -273,14 +265,12 @@
                     if(_currentState.parent.name == stateName)
                     {
                         score++;
-                        console.log("it's its parent state");
                     }
                 }
                 
                 if(targetToState.from == null)
                 {
                     score++;
-                    console.log("from is null... that's ok...");
                 }
                 
                 if(score >= win)
@@ -324,8 +314,6 @@
 
             changeState: function(stateName)
             {
-                console.log("jxlStateMachine::changeState, stateName:", stateName);
-
                 var me = this;
                 return $q(function(resolve, reject)
                 {
@@ -334,14 +322,13 @@
                         if(me.canChangeStateTo(stateName) == false)
                         {
                             //_streamController.add(new StateMachineEvent(StateMachineEvent.TRANSITION_DENIED));
+                            console.warn("Rejecting state change.");
                             reject(false);
                             return false;
                         }
-
-                        console.log("one");
-                        
+                        var oldStateName = _currentState.name;
                         var path = me.findPath(_currentState.name, stateName);
-                        console.log("two");
+                        
                         if(path[0] > 0)
                         {
                 //          local exitCallback = {name = "onExitState",
@@ -354,8 +341,6 @@
                                 _currentState.exit();
                             }
 
-                            console.log("three");
-                            
                             _currentParentState = _currentState;
                             
                             var p = 0;
@@ -369,14 +354,12 @@
                                 }
                                 p++;
                             }
-                            console.log("four");
                         }
                         
                         var toState = me.states[stateName];
                         var oldState = _currentState;
                         _currentState = toState;
                         
-                        console.log("five");
                         if(path[1] > 0)
                         {
                 //          local enterCallback = {name = "onEnterState",
@@ -390,7 +373,7 @@
                                 _currentParentStates = toState.parents;
                                 var secondPath = path[1];
                                 var k = secondPath - 1;
-                                console.log("six");
+
                                 while(k >= 0)
                                 {
                                     var theCurrentParentState = _currentParentStates[k];
@@ -403,23 +386,23 @@
                                 }
                             }
                             
-                            console.log("seven");
                             if(toState.enter != null)
                             {
                                 // enterCallback.currentState = toState.name;
                                 toState.enter();
                             }
 
-                            console.log("eight");
                         }
                         
-                        console.log("nine");
                 //      local outEvent = {name = "onTransitionComplete",
                 //                                  target = self,
                 //                                  fromState = oldState,
                 //                                  toState = stateTo}
                 //              self:dispatchEvent(outEvent)
                         //_streamController.add(new StateMachineEvent(StateMachineEvent.TRANSITION_COMPLETE));
+                        
+                        // TODO: timing may be off here, check, too tired to remember right now
+                        $rootScope.$broadcast('stateMachine:change', {to: toState.name, from: oldStateName});
                         resolve(true);
                     }
                     catch(error)
@@ -433,6 +416,6 @@
 
         return stateMachine;
     }
-    jxlStateMachine.$inject = ['jxlState', '$q'];
+    jxlStateMachine.$inject = ['jxlState', '$q', '$rootScope'];
 
 })();

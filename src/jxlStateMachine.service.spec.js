@@ -109,9 +109,8 @@ describe('jxlStateMachine Factory Spec: Basics', function()
     //     }
     // });
     
-    it.only('can go to * states from any state', function(done)
+    it('can go to * states from any state', function(done)
     {
-        console.log("dat done, though:", done);
         fsm.addState('fire1');
         fsm.addState('fire2', {from: ["*"]});
         fsm.initialState = 'fire1';
@@ -182,7 +181,7 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         };
         fsm.addState('main', {enter: onEnter});
         fsm.initialState = 'main';
-        assert.equal(called, true);
+        expect(called).to.equal(true);
     });
     
     it('parent states work', function()
@@ -194,14 +193,24 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         assert.equal(fsm.currentState.name, 'child1');
     });
     
-    it('child state can go to sibling', function()
+    it('child state can go to sibling', function(done)
     {
         fsm.addState('main');
         fsm.addState('child1', {parent: 'main'});
         fsm.addState('child2', {parent: 'main'});
         fsm.initialState = 'child1';
-        fsm.changeState('child2');
-        assert.equal(fsm.currentState.name, 'child2');
+        fsm.changeState('child2')
+        .then(function()
+        {
+            assert.equal(fsm.currentState.name, 'child2');
+            done();
+        },
+        function(error)
+        {
+            done(error);
+        });
+        
+        $rootScope.$digest();
     });
     
     it('child state enter callback is called', function()
@@ -219,7 +228,7 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         assert.equal(called, true);
     });
     
-    it('child state exit callback is called', function()
+    it('child state exit callback is called', function(done)
     {
         var called = false;
         fsm.addState("main");
@@ -231,8 +240,18 @@ describe('jxlStateMachine Factory Spec: Basics', function()
             }});
         fsm.addState("row", {parent: 'main'});
         fsm.initialState = 'defense';
-        fsm.changeState('row');
-        assert.equal(called, true);
+        fsm.changeState('row')
+        .then(function()
+        {
+            assert.equal(called, true);
+            done();
+        },
+        function(error)
+        {
+            done(error);
+        });
+        
+        $rootScope.$digest();
     });
 
 });

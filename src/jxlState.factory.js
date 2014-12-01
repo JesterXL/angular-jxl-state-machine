@@ -45,12 +45,12 @@
         		return _from;
         	},
 
-        	get enterCallback()
+        	get enter()
         	{
         		return _enterCallback;
         	},
 
-        	get exitCallback()
+        	get exit()
         	{
         		return _exitCallback;
         	},
