@@ -4,14 +4,21 @@
     angular
         .module('com.jessewarden.statemachine')
         .factory('jxlState', jxlState);
-
-    /* ngInject */
+    
     function jxlState()
     {
-        return State;
+        return {
+            getState: function(name, configs)
+            {
+                if(typeof configs == 'undefined')
+                {
+                    configs = {};
+                }
+                return new State(name, configs.from, configs.enter, configs.exit, configs.parent);
+            }
+        };
     }
 
-    
     function State(name, from, enter, exit, parent)
     {
     	var _name = name;

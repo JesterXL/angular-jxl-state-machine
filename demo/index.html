@@ -1,19 +1,24 @@
 <html>
 <head><title>Demo</title></head>
-<body>
+<body ng-app="app">
 
-<script src="../bower_components/angular/angular.js"></script>
-<script src="../dist/jxlStateMachine.js"></script>
+<script src="angular.js"></script>
+<script src="lodash.js"></script>
+<script src="jxlStateMachine.js"></script>
 <script>
 
 	angular.module("app", ['com.jessewarden.statemachine'])
-	.run(function($rootScope, jxlStateMachine, $timeout)
+	.run(function($rootScope, 
+					jxlStateMachine, 
+					$timeout)
 	{
-		var fsm = new jxlStateMachine();
+
+		console.log("run.");
+		var fsm = jxlStateMachine;
 		fsm.addState("fire1");
 		fsm.addState("fire2");
 		fsm.addState("fire3");
-		$rootScope.on("jxlStateMachine:change", function(event)
+		$rootScope.$on("jxlStateMachine:change", function(event)
 		{
 			console.log("event:", event);
 		});

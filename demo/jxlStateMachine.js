@@ -1,12 +1,146 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('com.jessewarden.statemachine', []);
+})();
+
 (function () {
     'use strict';
 
     angular
         .module('com.jessewarden.statemachine')
-        .factory('jxlStateMachine', jxlStateMachine);
+        .factory('jxlState', jxlState);
+    
+    function jxlState()
+    {
+        return {
+            getState: function(name, from, enter, exit, parent)
+            {
+                return new State(name, from, enter, exit, parent);
+            }
+        };
+    }
+
+    function State(name, from, enter, exit, parent)
+    {
+    	var _name = name;
+    	var _from = from == null ? ["*"] : from;
+    	var _enterCallback = enter;
+    	var _exitCallback = exit;
+    	var _parent;
+    	var _children = [];
+
+        var state = {
+        	
+        	get name()
+        	{
+        		return _name;
+        	},
+
+        	get from()
+        	{
+        		return _from;
+        	},
+
+        	get enterCallback()
+        	{
+        		return _enterCallback;
+        	},
+
+        	get exitCallback()
+        	{
+        		return _exitCallback;
+        	},
+
+        	get parent()
+        	{
+        		return _parent;
+        	},
+
+        	set parent(parentState)
+        	{
+        		_parent = parentState;
+        		if(_parent != null)
+        		{
+        			_parent.children.push(this);
+        		}
+        		// $scope.$broadcast("state:parentChanged", _parent);
+        	},
+
+        	get root()
+        	{
+        		var currentParentState = parent;
+        		if(currentParentState != null)
+        		{
+        			while(currentParentState.parent != null)
+        			{
+        				currentParentState = currentParentState.parent;
+        			}
+        		}
+        		return currentParentState;
+        	},
+
+        	get parents()
+        	{
+        		var parents = [];
+        		var currentParentState = parent;
+        		if(currentParentState != null)
+        		{
+        			parents.push(currentParentState);
+        			while(currentParentState != null)
+        			{
+        				currentParentState = currentParentState.parent;
+        				if(currentParentState != null)
+        				{
+        					parents.push(currentParentState);
+        				}
+        				else
+        				{
+        					break;
+        				}
+        			}
+        		}
+        		return parents;
+        	},
+
+        	isParentState: function(stateName)
+        	{
+        		var currentParents = this.parents;
+        		if(currentParents.length > 0)
+        		{
+        			currentParents.forEach(function(parentState)
+        			{
+        				if(parentState.name == stateName)
+        				{
+        					return true;
+        				}
+        			});
+        		}
+        		return false;
+        	}
+        };
+        
+        if(parent != null)
+    	{
+    		_parent = parent;
+    		_parent.children.push(state);
+    	}
+
+        return state;
+    }
+
+})();
+
+(function () {
+    'use strict';
+
+    angular
+        .module('com.jessewarden.statemachine')
+        .service('jxlStateMachine', jxlStateMachine);
 
     /* ngInject */
-    function jxlStateMachine(jxlState)
+    function jxlStateMachine(jxlState, $q)
     {
         var _currentState;
         var _currentParentState;
@@ -71,7 +205,7 @@
                 {
                     parentState = this.states[parent];
                 }
-                var newState = jxlState(stateName,
+                var newState = jxlState.getState(stateName,
                                             from,
                                             enter,
                                             exit,
@@ -86,7 +220,7 @@
                 var score = 0;
                 var win = 2;
                 
-                if(stateName != this.currentState.name)
+                if(stateName != _currentState.name)
                 {
                     score++;
                 }
@@ -94,20 +228,20 @@
                 // NOTE: Lua via State.inFrom was walking up one parent if from was null... why?
                 if(targetToState.from != null)
                 {
-                    if(targetToState.from.contains(this._currentState.name) == true)
+                    if(_.contains(targetToState.from, _currentState.name) == true)
                     {
                         score++;
                     }
                     
-                    if(targetToState.from.contains("*") == true)
+                    if(_.contains(targetToState.from, "*") == true)
                     {
                         score++;
                     }
                 }
                 
-                if(this.currentState != null && this.currentState.parent != null)
+                if(_currentState != null && _currentState.parent != null)
                 {
-                    if(this.currentState.parent.name == stateName)
+                    if(_currentState.parent.name == stateName)
                     {
                         score++;
                     }
@@ -142,8 +276,8 @@
                     {
                         if(fromState == toState)
                         {
-                            path.add(c);
-                            path.add(d);
+                            path.push(c);
+                            path.push(d);
                             return path;
                         }
                         d++;
@@ -152,8 +286,8 @@
                     c++;
                     fromState = fromState.parent;
                 }
-                path.add(c);
-                path.add(d);
+                path.push(c);
+                path.push(d);
                 return path;
             },
 
@@ -169,17 +303,17 @@
                         return false;
                     }
                     
-                    var path = me.findPath(me._currentState.name, stateName);
+                    var path = me.findPath(_currentState.name, stateName);
                     if(path[0] > 0)
                     {
             //          local exitCallback = {name = "onExitState",
             //                                              target = self,
             //                                              toState = stateTo,
             //                                              fromState = state}
-                        if(me._currentState.exit != null)
+                        if(_currentState.exit != null)
                         {
                             //exitCallback.currentCallback = _currentState;
-                            me._currentState.exit();
+                            _currentState.exit();
                         }
                         
                         _currentParentState = _currentState;
@@ -187,19 +321,19 @@
                         var p = 0;
                         while(p < path[0])
                         {
-                            me._currentParentState = me._currentParentState.parent;
-                            if(me._currentParentState != null && me._currentParentState.exit != null)
+                            _currentParentState = _currentParentState.parent;
+                            if(_currentParentState != null && _currentParentState.exit != null)
                             {
                                 // exitCallback.currentState = _currentParentState.parentState.name;
-                                me._currentParentState.exit();
+                                _currentParentState.exit();
                             }
                             p++;
                         }
                     }
                     
                     var toState = me.states[stateName];
-                    var oldState = me._currentState;
-                    me._currentState = toState;
+                    var oldState = _currentState;
+                    _currentState = toState;
                     
                     if(path[1] > 0)
                     {
@@ -211,12 +345,12 @@
                         
                         if(toState.root != null)
                         {
-                            me._currentParentStates = toState.parents;
+                            _currentParentStates = toState.parents;
                             var secondPath = path[1];
                             var k = secondPath - 1;
                             while(k >= 0)
                             {
-                                var theCurrentParentState = me._currentParentStates[k];
+                                var theCurrentParentState = _currentParentStates[k];
                                 if(theCurrentParentState != null && theCurrentParentState.enter != null)
                                 {
                                     // enterCallback.currentState = theCurrentParentState.name;
@@ -246,5 +380,6 @@
 
         return stateMachine;
     }
+    jxlStateMachine.$inject = ['jxlState', '$q'];
 
 })();
