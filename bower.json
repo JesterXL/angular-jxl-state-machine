@@ -1,6 +1,6 @@
 {
   "name": "angular-jxl-state-machine",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A simple finite state machine for Angular supporting String and Object states with both callback and event support.",
   "homepage": "https://github.com/JesterXL/angular-jxl-state-machine",
   "authors": [
