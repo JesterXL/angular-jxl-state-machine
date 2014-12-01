@@ -1,0 +1,39 @@
+<html>
+<head><title>Demo</title></head>
+<body>
+
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../dist/jxlStateMachine.js"></script>
+<script>
+
+	angular.module("app", ['com.jessewarden.statemachine'])
+	.run(function($rootScope, jxlStateMachine, $timeout)
+	{
+		var fsm = new jxlStateMachine();
+		fsm.addState("fire1");
+		fsm.addState("fire2");
+		fsm.addState("fire3");
+		$rootScope.on("jxlStateMachine:change", function(event)
+		{
+			console.log("event:", event);
+		});
+		fsm.initialState = "fire1";
+		
+		$timeout(function()
+		{
+			fsm.changeState("fire2");
+		}, 1000);
+
+		$timeout(function()
+		{
+			fsm.changeState("fire3");
+		}, 2000);
+
+		$timeout(function()
+		{
+			fsm.changeState("fire1");
+		}, 3000);
+	});
+	
+</script>
+</body>

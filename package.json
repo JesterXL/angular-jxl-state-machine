@@ -1,0 +1,40 @@
+{
+  "name": "angular-jxl-state-machine",
+  "version": "0.0.0",
+  "description": "A simple finite state machine for Angular supporting String and Object states with both callback and event support.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/JesterXL/angular-jxl-state-machine.git"
+  },
+  "keywords": [
+    "angular",
+    "state",
+    "machine",
+    "finite",
+    "javascript"
+  ],
+  "author": "JesterXL <jesse@jessewarden.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JesterXL/angular-jxl-state-machine/issues"
+  },
+  "homepage": "https://github.com/JesterXL/angular-jxl-state-machine",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-karma": "^0.9.0",
+    "karma": "^0.12.28",
+    "karma-chai": "^0.1.0",
+    "karma-mocha": "^0.1.9",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-sinon": "^1.0.4",
+    "mocha": "^2.0.1",
+    "sinon": "^1.12.1",
+    "wiredep": "^2.2.0"
+  }
+}
