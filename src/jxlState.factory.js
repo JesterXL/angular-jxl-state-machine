@@ -12,7 +12,12 @@
             {
                 if(typeof configs == 'undefined')
                 {
-                    configs = {};
+                    configs = {
+                        from: null,
+                        enter: null,
+                        exit: null,
+                        parent: null
+                    };
                 }
                 return new State(name, configs.from, configs.enter, configs.exit, configs.parent);
             }
@@ -22,7 +27,7 @@
     function State(name, from, enter, exit, parent)
     {
     	var _name = name;
-    	var _from = from == null ? ["*"] : from;
+    	var _from = (from == null) ? ["*"] : from;
     	var _enterCallback = enter;
     	var _exitCallback = exit;
     	var _parent;

@@ -64,17 +64,21 @@
             // TODO: fix if you care, I don't. I believe Dart Map throws error if you attempt set
             // an already existing State.
             // TODO: translate above to JavaScript, lulz
-            addState: function(stateName, from, enter, exit, parent)
+            addState: function(stateName, config)
             {
+                if(typeof config == 'undefined')
+                {
+                    config = {};
+                }
                 var parentState = null;
                 if(parent != null)
                 {
                     parentState = this.states[parent];
                 }
                 var newState = jxlState.getState(stateName,
-                                            {from: from,
-                                            enter: enter,
-                                            exit: exit,
+                                            {from: config.from,
+                                            enter: config.ener,
+                                            exit: config.exit,
                                             parent: parentState});
                 this.states[stateName] = newState;
                 return newState;
@@ -82,26 +86,42 @@
             
             canChangeStateTo: function(stateName)
             {
+                console.log("jxlStateMachine::canChangeStateTo, stateName: " + stateName);
+                console.log("_currentState.name:", _currentState.name);
+
                 var targetToState = this.states[stateName];
+                console.log("targetToState:", targetToState);
+                console.log("targetToState.from:", targetToState.from);
                 var score = 0;
                 var win = 2;
+
                 
                 if(stateName != _currentState.name)
                 {
                     score++;
+                    console.log("state names aren't the same");
                 }
                 
                 // NOTE: Lua via State.inFrom was walking up one parent if from was null... why?
                 if(targetToState.from != null)
                 {
-                    if(_.contains(targetToState.from, _currentState.name) == true)
+                    console.log("it's from isn't null, so...");
+                    // TODO: remove lodash, someone will get all bent out of shape
+                    // that I'm adding precious k to their code. #inb4lessqueque
+                    
+                    var tempFrom = targetToState.from;
+                    var tempName = _currentState.name;
+                    var tempValue = tempFrom.indexOf(tempName);
+                    if(tempValue > -1)
                     {
                         score++;
+                        console.log("currentState is in from list")
                     }
                     
-                    if(_.contains(targetToState.from, "*") == true)
+                    if(targetToState.from.indexOf("*") > -1)
                     {
                         score++;
+                        console.log("targetToState's from has '*' in it");
                     }
                 }
                 
@@ -110,12 +130,14 @@
                     if(_currentState.parent.name == stateName)
                     {
                         score++;
+                        console.log("it's its parent state");
                     }
                 }
                 
                 if(targetToState.from == null)
                 {
                     score++;
+                    console.log("from is null... that's ok...");
                 }
                 
                 if(score >= win)
@@ -164,9 +186,6 @@
                 var me = this;
                 return $q(function(resolve, reject)
                 {
-                    resolve(true);
-                    return;
-
                     try
                     {
                         if(me.canChangeStateTo(stateName) == false)

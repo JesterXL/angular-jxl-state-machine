@@ -84,8 +84,7 @@ module.exports = function (grunt) {
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['bower_components/angular/angular.js',
-                        'bower_components/lodash/dist/lodash.js'],
+                src: ['bower_components/angular/angular.js'],
                 dest: 'demo/'
             },
         },

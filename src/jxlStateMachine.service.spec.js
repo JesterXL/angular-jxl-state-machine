@@ -80,21 +80,23 @@ describe('jxlStateMachine Factory Spec: Basics', function()
 {
 
     var fsm = null;
-    var q = null;
+    var $rootScope = null;
 
     beforeEach(function()
     {
         module('com.jessewarden.statemachine');
     });
 
-    beforeEach(inject(function(_jxlStateMachine_)
+    beforeEach(inject(function(_jxlStateMachine_, _$rootScope_)
     {
         fsm = _jxlStateMachine_;
+        $rootScope = _$rootScope_;
     }));
 
     afterEach(function()
     {
         fsm = null;
+        $rootScope = null;
     });
     
     // tearDown(()
@@ -114,9 +116,8 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         fsm.addState('fire2', {from: ["*"]});
         fsm.initialState = 'fire1';
         fsm.changeState('fire2')
-        .then(function(sup)
+        .then(function()
         {
-            console.log("sup:", sup);
             assert.equal(fsm.currentState.name, 'fire2');
             done();
         },
@@ -129,7 +130,7 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         {
             console.log("notify:", notify);
         });
-       
+        $rootScope.$digest();
     });
     
     // it('successfully fires a transition denied event for non-from events', function()
