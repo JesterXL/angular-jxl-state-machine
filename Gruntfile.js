@@ -45,7 +45,7 @@ module.exports = function (grunt) {
                 cwd: '.',
                 expand: true,
                 files: {
-                    'dist/jxlStateMachine.js': [
+                    'dist/angular-jxl-state-machine.js': [
                         'temp/src/**/*.module.js',
                         'temp/src/**/*.js',
                         '!temp/src/**/*.spec.js']
@@ -76,8 +76,8 @@ module.exports = function (grunt) {
         copy: {
             demo: {
                 cwd: '.',
-                src: 'dist/jxlStateMachine.js',
-                dest: 'demo/jxlStateMachine.js'
+                src: 'dist/angular-jxl-state-machine.js',
+                dest: 'demo/angular-jxl-state-machine.js'
             },
 
             demoLibs: {
