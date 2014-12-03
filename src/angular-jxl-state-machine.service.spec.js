@@ -1,6 +1,7 @@
 describe('jxlStateMachine Factory Spec: Basics', function()
 {
     var fsm = null;
+    var jxlStateMachine = null;
 
     beforeEach(function()
     {
@@ -9,7 +10,8 @@ describe('jxlStateMachine Factory Spec: Basics', function()
 
     beforeEach(inject(function(_jxlStateMachine_)
     {
-        fsm = _jxlStateMachine_;
+        jxlStateMachine = _jxlStateMachine_;
+        fsm = new jxlStateMachine();
     }));
 
     afterEach(function()
@@ -17,10 +19,10 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         fsm = null;
     });
 
-    it('should have a dummy test', inject(function()
+    it('should have a dummy test', function()
     {
         expect(true).to.equal(true);
-    }));
+    });
 
     it('can add a state', function()
     {
@@ -73,6 +75,30 @@ describe('jxlStateMachine Factory Spec: Basics', function()
         fsm.changeState('fire3');
         assert.equal(fsm.currentState.name, 'fire3');
     });
+
+    it('can have multiple instances', function()
+    {
+        var fsm1 = new jxlStateMachine();
+        var fsm2 = new jxlStateMachine();
+        expect(fsm1).not.to.equal(fsm2);
+    });
+
+    it('multiple instances can have different states', function()
+    {
+        var fsm1 = new jxlStateMachine();
+        fsm1.addState('fire1');
+        fsm1.addState('fire2');
+        fsm1.addState('fire3');
+        fsm1.initialState = 'fire1';
+
+        var fsm2 = new jxlStateMachine();
+        fsm2.addState('cow1');
+        fsm2.addState('moogoo');
+        fsm2.addState('yet again 4, dude!');
+        fsm2.initialState = 'moogoo';
+
+        expect(fsm1.currentState.name).not.to.equal(fsm2.currentState.name);
+    });
     
 });
 
@@ -89,7 +115,7 @@ describe('jxlStateMachine Factory Spec: Basics', function()
 
     beforeEach(inject(function(_jxlStateMachine_, _$rootScope_)
     {
-        fsm = _jxlStateMachine_;
+        fsm = new _jxlStateMachine_();
         $rootScope = _$rootScope_;
     }));
 
